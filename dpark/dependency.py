@@ -1,6 +1,5 @@
 import bisect
 
-from dpark.util import portable_hash
 from dpark.serialize import load_func, dump_func
 
 class Dependency:
@@ -124,7 +123,7 @@ class HashPartitioner(Partitioner):
         return self.partitions
 
     def getPartition(self, key):
-        return portable_hash(key) % self.partitions
+        return hash(key) % self.partitions
 
     def __eq__(self, other):
         if isinstance(other, Partitioner):

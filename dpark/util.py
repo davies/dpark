@@ -3,12 +3,13 @@ import types
 from zlib import compress as _compress, decompress
 import threading
 import warnings
-try:
-    from dpark.portable_hash import portable_hash as _hash
-except ImportError:
-    import pyximport
-    pyximport.install(inplace=True)
-    from dpark.portable_hash import portable_hash as _hash
+
+def hijack_hash():
+    old_hash = __builtins__.hash
+    def new_hash(o):
+        return old_hash(o) if o is not None else 0
+    __builtins__.hash = new_hash
+hijack_hash()
 
 try:
     import os
@@ -39,11 +40,6 @@ def spawn(target, *args, **kw):
     t.daemon = True
     t.start()
     return t
-
-# hash(None) is id(None), different from machines
-# http://effbot.org/zone/python-hash.htm
-def portable_hash(value):
-    return _hash(value)
 
 # similar to itertools.chain.from_iterable, but faster in PyPy
 def chain(it):

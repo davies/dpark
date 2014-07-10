@@ -1,7 +1,6 @@
 import itertools
 import marshal
 import math
-from dpark.portable_hash import portable_hash
 
 BYTE_SHIFT = 3
 BYTE_SIZE = 1 << BYTE_SHIFT
@@ -141,8 +140,8 @@ class Bloomfilter(object):
     by Kirsch & Mitzenmacher: http://www.eecs.harvard.edu/~kirsch/pubs/bbbf/esa06.pdf
     '''
     def _get_offsets(self, obj):
-        hash_1 = portable_hash(obj)
-        hash_2 = portable_hash(marshal.dumps(obj))
+        hash_1 = hash(obj)
+        hash_2 = hash(marshal.dumps(obj))
 
         for i in xrange(self.k):
             yield ((hash_1 + i * hash_2) & 0xFFFFFFFF) % self.m
