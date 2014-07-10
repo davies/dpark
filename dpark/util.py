@@ -7,7 +7,20 @@ import warnings
 def hijack_hash():
     old_hash = __builtins__.hash
     def new_hash(o):
-        return old_hash(o) if o is not None else 0
+        if o is None:
+            return 0
+        if isinstance(o, tuple):
+            h = 0x345678
+            for x in o:
+                h *= 1000003
+                h &= 0xffffffff
+                h ^= new_hash(x)
+            h ^= len(o)
+            if h == -1:
+                h = -2
+            return h
+        return old_hash(o)
+    
     __builtins__.hash = new_hash
 hijack_hash()
 
