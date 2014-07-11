@@ -3,26 +3,26 @@ import types
 from zlib import compress as _compress, decompress
 import threading
 import warnings
+import __builtin__
 
-def hijack_hash():
-    old_hash = __builtins__.hash
-    def new_hash(o):
-        if o is None:
-            return 0
-        if isinstance(o, tuple):
-            h = 0x345678
-            for x in o:
-                h *= 1000003
-                h &= 0xffffffff
-                h ^= new_hash(x)
-            h ^= len(o)
-            if h == -1:
-                h = -2
-            return h
-        return old_hash(o)
-    
-    __builtins__.hash = new_hash
-hijack_hash()
+old_hash = __builtin__.hash
+def portable_hash(o):
+    if o is None:
+        return 0
+    if isinstance(o, tuple):
+        h = 0x345678
+        for x in o:
+            h *= 1000003
+            h &= 0xffffffff
+            h ^= portable_hash(x)
+        h ^= len(o)
+        if h == -1:
+            h = -2
+        return h
+    return old_hash(o)
+
+def hijack_hash(f):
+    __builtin__.hash = f
 
 try:
     import os

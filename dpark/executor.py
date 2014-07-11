@@ -21,7 +21,7 @@ import pymesos as mesos
 import pymesos.mesos_pb2 as mesos_pb2
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
-from dpark.util import compress, decompress, spawn
+from dpark.util import compress, decompress, spawn, portable_hash, hijack_hash
 from dpark.serialize import marshalable
 from dpark.accumulator import Accumulator
 from dpark.schedule import Success, FetchFailed, OtherFailure
@@ -390,4 +390,5 @@ def run():
     driver.run()
 
 if __name__ == '__main__':
+    hijack_hash(portable_hash)
     run()
